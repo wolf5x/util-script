@@ -1,0 +1,184 @@
+<html>
+	<head>
+		<style type="text/css">
+			div {
+				display: block;
+			}
+			#ground td{
+				weight:50px;
+				height:50px;
+				margin:10px;
+			}
+			#ground div,#btn{
+				text-align:center;
+			}
+			.container{
+				margin:0 auto;
+				width:630px; 
+				padding: 0;
+				border: 0;
+			}
+		</style>
+		<script>
+			var MODE=4;
+			var ROW=3;
+			var COL=6;
+			var NN=ROW*COL;
+			var	state=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+			var a= [
+						[1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+						[1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+						[0,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+						[0,0,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0],
+						[0,0,0,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0],
+						[0,0,0,0,1,1,0,0,0,0,0,1,0,0,0,0,0,0],
+						[1,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0],
+						[0,1,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0,0],
+						[0,0,1,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0],
+						[0,0,0,1,0,0,0,0,1,1,1,0,0,0,0,1,0,0],
+						[0,0,0,0,1,0,0,0,0,1,1,1,0,0,0,0,1,0],
+						[0,0,0,0,0,1,0,0,0,0,1,1,0,0,0,0,0,1],
+						[0,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,0],
+						[0,0,0,0,0,0,0,1,0,0,0,0,1,1,1,0,0,0],
+						[0,0,0,0,0,0,0,0,1,0,0,0,0,1,1,1,0,0],
+						[0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,1,1,0],
+						[0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,1,1],
+						[0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,1],
+					];
+			function adjust(a){
+				if(!isNaN(a)){
+					return (a%MODE+MODE)%MODE;
+				}
+			}
+			function gcd(a,b){
+				if(!isNaN(a)&&!isNaN(b)){
+					if(b===0){
+						return a;
+					}else{
+						return gcd(b,a%b);
+					}
+				}
+			}
+			function solve(b){
+				//copy a
+				var _a=new Array();
+				for(var i=0;i<NN;i++){
+					_a[i]=new Array();
+					for(var j=0;j<NN;j++){
+						_a[i].push(a[i][j]);
+					}
+				}
+				for(var i=0;i<NN;i++){
+					var p=-1;
+					for(var j=i;j<NN;j++){
+						if(_a[j][i]!=0&&(p<0||Math.abs(_a[p][i])<Math.abs(_a[j][i]))){
+							p=j;
+						}
+					}
+					if(p<0) continue;
+					for(var j=0;j<NN;j++){
+						var _t=_a[i][j];
+						_a[i][j]=_a[p][j];
+						_a[p][j]=_t;
+					}
+					var _t=b[i];
+					b[i]=b[p];
+					b[p]=_t;
+					for(var j=0;j<NN;j++){
+						if (j!=i && _a[j][i]!=0){
+							var x=_a[i][i];
+							var y=_a[j][i];
+							for (var k=0;k<NN;k++) {
+								_a[j][k]=_a[j][k]*x-_a[i][k]*y;
+							}
+							b[j]=b[j]*x-b[i]*y;
+							var g=Math.abs(b[j]);
+							for (var k=0;k<NN;k++) {
+								if (_a[j][k]!= 0)
+									g=g!=0?gcd(g,Math.abs(_a[j][k])):_a[j][k];
+							}
+							if (g!=0){
+								for (var k=0;k<NN;k++)
+									_a[j][k]=_a[j][k]/g;
+								b[j]=b[j]/g;
+							}
+						}
+					}
+				}
+				//solve answer
+				var ans=new Array();
+				for (var i = 0; i < NN; i++) {
+					if (_a[i][i] < 0) 
+						_a[i][i] = -_a[i][i], b[i] = -b[i];
+					b[i]=adjust(b[i]);
+					var x=0;
+					for(; x*_a[i][i]%MODE != b[i]; x++);
+					ans.push(x);
+				}
+				return ans;
+			}
+			
+			function notieTrans(o,d){  
+			var dd='rotate('+d+'deg)';
+		  o.style.MozTransform = dd;  
+		  o.style.webkitTransform = dd;  
+		  o.style.msTransform = dd;  
+		  o.style.OTransform = dd;  
+		  o.style.transform = dd;  
+		}
+		function ieTrans(o,d){    
+    	o.style.filter="progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";		
+		}
+		function getClickFun(i,j){
+			return function(){
+				state[i*COL+j]=(state[i*COL+j]+1)%MODE;
+				notieTrans(this,state[i*COL+j]*90);
+			}
+		}
+		function cal(){
+			var _state=new Array();
+			for(var i=0;i<NN;i++)
+				_state.push(state[i]);
+			for(var i=0;i<NN;i++){
+				_state[i]*=-1;
+				_state[i]+=4;
+				_state[i]=_state[i]%4;
+			}
+			var ans=solve(_state);
+			for(var i=0;i<ROW;i++){
+				for(var j=0;j<COL;j++){
+					document.getElementById("dis"+i+"-"+j).innerHTML=ans[i*COL+j];
+				}
+			}
+		}
+		</script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<div id="ground" class="container">
+			<table>
+				<script>
+					for(var i=0;i<ROW;i++){
+						document.write("<tr>");
+						for(var j=0;j<COL;j++){
+							document.write("<td><img id='img"+i+"-"+j+"' src='arrow.jpg'/><div id='dis"+i+"-"+j+"'>0</div></td>");
+							document.getElementById("img"+i+"-"+j).onclick=getClickFun(i,j);
+						}
+						document.write("<tr>");
+					}
+				</script>
+			</table>
+		</div>
+		<div class="container">
+			<button onclick="cal()" id="btn">算一发！</button>
+		</div>
+		<div class="container">
+			操作步骤：<br>
+			1. 点击蓝色的箭头，将所有箭头方向旋转的与椅子一致。<br>
+			2. 算一发！<br>
+			3. 箭头下面的数字代表椅子需要【顺时针】旋转的次数。<br>
+			4. enjoy it！<br>
+		</div>
+	
+	</body>
+</html>

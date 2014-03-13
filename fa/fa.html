@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<script type="text/javascript" src="jquery.js"></script>
+		<script type="text/javascript" src="chair.js"></script>
+	</head>
+
+	<body>
+		<div class="chairmap">
+			<table class="chairmap"></table>
+			<input type="submit" onclick="calchair();" value="Calculate!"/>
+		</div>
+
+		<script type="text/javascript">
+			var calchair = function() {
+				a = [];
+				$("input.chairmap").each( function() {
+					a[$(this).id] = $(this).val();
+				});
+				b = solve(a);
+				
+			}
+			
+			$(function(){
+				for (i = 0; i < 3; i++) 
+					$("table.chairmap").append("<tr class='chairmap'><td class='chairmap'></td></tr>");
+				for (i = 0; i < 6; i++)
+					$("td.chairmap").append("<input class='chairmap' type='text' value='0' />");
+			});
+		</script>
+	</body>
+
+</html>
