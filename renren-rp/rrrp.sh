@@ -94,9 +94,9 @@ _last_collectrp_day=$(get_config "last_collectrp_day")
 _today=$(date +"%F")
 if [[ "$_last_collectrp_day" < "$_today" ]]
 then
-    # Experimental: Parse XN.get_check and XN.get_check_x from lastpage.html
-    _xn_reg="get_check:'([^']*)',get_check_x:'([^']*)'"
-    if [[ "$(cat lastpage.html | grep -o 'XN = {.*}')" =~ $_xn_reg ]]
+    # Experimental: Parse requestToken and _rtk from lastpage.html
+    _xn_reg="requestToken : '([^']*)',.*_rtk : '([^']*)'"
+    if [[ "$(cat lastpage.html | sed -n '/requestToken/,/_rtk/p')" =~ $_xn_reg ]]
     then
         _XN_get_check=${BASH_REMATCH[1]}
         _XN_get_check_x=${BASH_REMATCH[2]}
